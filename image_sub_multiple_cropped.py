@@ -66,7 +66,7 @@ for dir_one in dirs:
 
 			for i in range(0,height):
 				for j in range(0,width):
-					if (image3[i,j] < -10):
+					if (image3[i,j] < -5):
 							#if (b == 7):
 								#print "i is: " + str(i)
 								#print "j is: " + str(j)
@@ -75,7 +75,7 @@ for dir_one in dirs:
 						for k in range(i-10,i+10):
 							for l in range(j-10,j+10):
 								if ((k > 0) and (k < 1024) and (l > 0) and (l < 1280)):
-									if (image3[k,l] < -10):
+									if (image3[k,l] < -5):
 										count = count + 1
 										sum = sum + (-1*image3[k,l])
 										#print "k is: " + str(k)
@@ -100,6 +100,14 @@ for dir_one in dirs:
 			#for d in range(min_i - 50, min_i + 50):
 			#	for e in range(min_j - 50, min_j + 50):
 			#		image2b[d,e][0] = 255
+			if ((min_i - 50) <= 0):
+				min_i = 51
+			if ((min_i + 50) >= 1024):
+				min_i = 973
+			if ((min_j - 50) < 0):
+				min_j = 51
+			if ((min_j + 50) >= 1280):
+				min_j = 1229
 			imagecrop = image2b[min_i-50:min_i+50, min_j-50:min_j+50]
 			longname = img2_toread
 			baseindex = longname.index("/") + 1;
