@@ -68,16 +68,16 @@ for a in range(1,len(images)):
 #print image1[55,56]
 #print image2[55,56]
 
-	for d in range(min_i - 50, min_i + 50):
-		for e in range(min_j - 50, min_j + 50):
-			image2b[d,e][0] = 255;
-	#print images[a+1]
+	#for d in range(min_i - 50, min_i + 50):
+	#	for e in range(min_j - 50, min_j + 50):
+	#		image2b[d,e][0] = 255
+	imagecrop = image2b[min_i-50:min_i+50, min_j-50:min_j+50]
 	longname = img2_toread
 	baseindex = longname.rindex("/") + 1;
 	#print a + 1;
 	#print longname;
 	#print baseindex;
-	cv2.imwrite("PlateOneNew/" + longname[baseindex:], image2b)
+	cv2.imwrite("PlateOneNew/" + longname[baseindex:], imagecrop)
 	#if a == 7:
 	#	cv2.namedWindow('image',cv2.WINDOW_NORMAL)
 	#	cv2.imshow('image',imagecrop)
