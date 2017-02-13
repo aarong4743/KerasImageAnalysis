@@ -18,7 +18,7 @@ def CleanAndMakeDir(destinationFolder):
     os.mkdir(destinationFolder)
 
 
-def CropImage(imageDiff, origImage, threshold, search_range, crop_size):
+def CropImage(imageDiff, origImage, threshold_anchor, threshold_range, search_range, crop_size):
     height, width = imageDiff.shape
     min = 0
     maxcount = 0
@@ -29,21 +29,21 @@ def CropImage(imageDiff, origImage, threshold, search_range, crop_size):
 
     for i in range(0,height):
         for j in range(0,width):
-            if (imageDiff[i,j] < -threshold):
+            if (imageDiff[i,j] < -threshold_anchor):
                 count = 0
                 sum = 0
-            for k in range(i-search_range,i+search_range):
-                for l in range(j-search_range,j+search_range):
-                    if ((k > 0) and (k < height) and (l > 0) and (l < width)):
-                        if (imageDiff[k,l] < -threshold):
-                            count = count + 1
-                            sum = sum + (-1*imageDiff[k,l])
+                for k in range(i-search_range,i+search_range):
+                    for l in range(j-search_range,j+search_range):
+                        if ((k > 0) and (k < height) and (l > 0) and (l < width)):
+                            if (imageDiff[k,l] < -threshold_range):
+                                count = count + 1
+                                sum = sum + (-1*imageDiff[k,l])
 
-            if (count > maxcount):
-                min_i = i
-                min_j = j
-                min = imageDiff[i,j]
-                maxcount = count
+                if (count > maxcount):
+                    min_i = i
+                    min_j = j
+                    min = imageDiff[i,j]
+                    maxcount = count
 
     #keeps it from cropping off the side of the picture
     if ((min_i - crop_size)<0): min_i = crop_size
@@ -56,17 +56,17 @@ def CropImage(imageDiff, origImage, threshold, search_range, crop_size):
     return imagecrop
 
 
-def CropAllImages(destinationFolder, sourceFolder, threshold, search_range, crop_size):
+def CropAllImages(destinationFolder, sourceFolder, threshold_anchor, threshold_range, search_range, crop_size):
     CleanAndMakeDir(destinationFolder)
     categories = Listdir_nohidden(sourceFolder)
 
     for category in categories:
         os.mkdir(destinationFolder + "/" + category)
-        plates = listdir_nohidden(sourceFolder + "/" + category)
+        plates = Listdir_nohidden(sourceFolder + "/" + category)
 
         for plate in plates:
             os.mkdir(destinationFolder + "/" + category + "/" + plate)
-            files = listdir_nohidden(sourceFolder + "/" + category + "/" + plate)
+            files = Listdir_nohidden(sourceFolder + "/" + category + "/" + plate)
             images = []
 
             for img in files:
@@ -80,8 +80,28 @@ def CropAllImages(destinationFolder, sourceFolder, threshold, search_range, crop
                 image2 = image2.astype(np.int16)
                 imageDiff = image2 - image1
 
-                imagecrop = CropImage(imageDiff, image2, threshold, search_range, crop_size)
+                imagecrop = CropImage(imageDiff, image2, threshold_anchor, threshold_range, search_range, crop_size)
                 cv2.imwrite(destinationFolder
                         + "/" + category + "/" + plate + "/" + str(i+1) + ".jpeg", imagecrop)
 
-CropAllImages("Cropped", "plates", 10, 10, 100)
+# Crop all New Data Images
+CropAllImages("Anchor10_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 10, 10, 100)
+CropAllImages("Anchor10_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 5, 10, 100)
+CropAllImages("Anchor10_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 7, 10, 100)
+CropAllImages("Anchor7_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 5, 10, 100)
+CropAllImages("Anchor7_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 7, 10, 100)
+CropAllImages("Anchor5_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 5, 10, 100)
+CropAllImages("Anchor5_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 7, 10, 100)
+CropAllImages("Anchor5_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 10, 10, 100)
+CropAllImages("Anchor7_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 10, 10, 100)
+
+# Crop all Google Drive Images
+CropAllImages("Anchor10_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 10, 10, 100)
+CropAllImages("Anchor10_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 5, 10, 100)
+CropAllImages("Anchor10_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 7, 10, 100)
+CropAllImages("Anchor7_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 5, 10, 100)
+CropAllImages("Anchor7_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 7, 10, 100)
+CropAllImages("Anchor5_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 5, 10, 100)
+CropAllImages("Anchor5_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 7, 10, 100)
+CropAllImages("Anchor5_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 10, 10, 100)
+CropAllImages("Anchor7_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 10, 10, 100)
