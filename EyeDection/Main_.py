@@ -38,6 +38,26 @@ class Main:
              Predictor.predict_all_well(
                 '/Users/patrickhayes/Desktop/Test_Sets/' + test_set
                 ,encoding, model)
+
+    @staticmethod
+    def create_train_and_save(trainning_set, name):
+         print 'Loading Images Please Be Patient'
+        labels, imgs, labels_test, imgs_test, encoding = \
+                MyUtils.get_all_labels_and_images(
+                        '/Users/patrickhayes/Desktop/Trainning_Sets/'
+                        + trainning_set, 0)
+        print (imgs.shape)
+        print 'Done Loading Images'
+        print ' '
+        print 'Starting to train'
+        model = NeuralNetwork("model_a", num_categories=len(encoding))
+        history = model.train(imgs, labels, 20)
+        print 'Done Training'
+        print ' '
+        print 'Starting to save'
+        model.save('Users/patrickhayes/Desktop/Models/' + name)
+        print 'Done saving'
+
         
 
 

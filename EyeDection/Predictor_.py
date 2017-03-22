@@ -37,7 +37,7 @@ class Predictor:
             image1 = cv2.imread(folder_path + '/' + image_names[i-1],0)
             image1 = image1.astype(np.int16)
             image2 = cv2.imread(folder_path + '/' + image_names[i],0)
-            imageDiff = image2[:,:,1] - image1[:,:,1]
+            imageDiff = image2 - image1
             image_crop = ImageCropper.crop_image(imageDiff, image2)
 
             # Increased the contrast of the image if they asked for it
@@ -138,7 +138,7 @@ class Predictor:
             results.write("True Positive Count "
                             + "(Worm predicted abnormal and actually was): "
                             + str(TP) + '\n')
-            results.write("True Negatve Count "
+            results.write("True Negative Count "
                             + "(Worm predicted normal and actually was): "
                             + str(TN) + '\n')
             results.write("False Positive Count "
