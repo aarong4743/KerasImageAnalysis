@@ -39,7 +39,7 @@ class ImageCropper:
         MyUtils.clean_and_make_dir(destinationFolder)
     	categories = MyUtils.listdir_nohidden(sourceFolder)
 
-        #The ighest level directory will have a folder for each category
+        #The highest level directory will have a folder for each category
         # (0_Eyes, 1_Eye, 2_Eyes, etc.)
         for category in categories:
             os.mkdir(destinationFolder + "/" + category)
@@ -131,6 +131,7 @@ class ImageCropper:
         height, width = imageDiff.shape
         min = 0
         maxcount = 0
+        maxsum = 0
         min_i = 0
         min_j = 0
         search_range = ImageCropper.search_range / 2
@@ -156,11 +157,11 @@ class ImageCropper:
                                     count = count + 1
                                     sum = sum + (-1*imageDiff[k,l])
     
-                    if (count > maxcount):
+                    if (sum > maxsum):
                         min_i = i
                         min_j = j
                         min = imageDiff[i,j]
-                        maxcount = count
+                        maxsum = sum
     
         #keeps it from cropping off the side of the picture
         if ((min_i - crop_size)<0): min_i = crop_size
@@ -174,6 +175,37 @@ class ImageCropper:
                               ,min_j-crop_size:min_j+crop_size]
     
         return imagecrop
+
+    
+    # Purpose - Increases the contrast of the image
+    #
+    # Takes - an image
+    #
+    # Return - the same image but with a higher contrast
+    @staticmethod
+    def increase_contrast(image):
+        height, width = image.shape[:2]
+        
+        # Find lowest and highest pixel values
+        min_pixel = image.min()
+        max_pixel = image.max()
+
+        zero_img = np.zeros((height, width), np.uint8)
+
+        for i in range(0, height):
+            for j in range(0,width):
+                MAXIMUM_PIXEL_VALUE = 255
+
+                # equation to increase the contrast
+                new_pix_value = (MAXIMUM_PIXEL_VALUE * (image[i,j] - min_pixel)
+                                 / ((0.9 * max_pixel) - min_pixel))
+
+                # Write the new pixel values to the blank canvas image
+                if new_pixel_value >= 255:
+                    zero_img[i,j] = 255
+                else:
+                    zero_img[i,j] = new_pix_value
+        return zero_img
 
    ### End Methods ##########################################################
 

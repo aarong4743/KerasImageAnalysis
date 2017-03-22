@@ -18,6 +18,7 @@ class MyUtils:
     NOT_SURE = "Not_Sure"
     DEAD = "Dead"
     BAD_ANGLE = "Bad_Angle"
+    RESULTS = "results.txt"
 
     # Converets the text to an int if it is an number
     @staticmethod
@@ -38,7 +39,7 @@ class MyUtils:
         lst = os.listdir(path)
         lst.sort(key=MyUtils.natural_keys)
         for f in lst:
-            if not f.startswith('.'):
+            if not f.startswith('.') and f != MyUtils.RESULTS:
                 yield f
 
     # Checks to see if the given path is already a directory
@@ -81,11 +82,11 @@ class MyUtils:
             all_images = list(MyUtils.images_in_folder(path + '/' + folder))
             for img in all_images:
                 encoding = [0] * len(folders)
-                pixels = cv2.imread(path + '/' + folder + '/' + img,1)
+                pixels = cv2.imread(path + '/' + folder + '/' + img,0)
                 if pixels is None:
                     print 'Bad'
                     continue
-                images.append(pixels.reshape(100,100,3))
+                images.append(pixels.reshape(1, 100, 100))
                 encoding[idx] = 1
                 labels.append(encoding)
 

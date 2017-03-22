@@ -6,9 +6,18 @@ import numpy as np
 import glob
 import os
 import shutil
+import re
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    return [ atoi(c) for c in re.split('(\d+)', text) ]
 
 def Listdir_nohidden(path):
-    for f in os.listdir(path):
+    lst = os.listdir(path)
+    lst.sort(key=natural_keys)
+    for f in lst:
         if not f.startswith('.'):
             yield f
 
@@ -56,7 +65,7 @@ def CropImage(imageDiff, origImage, threshold_anchor, threshold_range, search_ra
     return imagecrop
 
 
-def CropAllImages(destinationFolder, sourceFolder, threshold_anchor, threshold_range, search_range, crop_size):
+def CropAllImages(destinationFolder, sourceFolder):
     CleanAndMakeDir(destinationFolder)
     categories = Listdir_nohidden(sourceFolder)
 
@@ -75,33 +84,20 @@ def CropAllImages(destinationFolder, sourceFolder, threshold_anchor, threshold_r
             path = sourceFolder + "/" + category + "/" + plate + "/"
             for i in range(1,len(images)):
                 image1 = cv2.imread(path + images[i-1],0)
+                if image1 is None:
+                    print ("Image " + str(i) + " of plate " + str(plate) + " could not be opened")
+                    continue
                 image1 = image1.astype(np.int16)
                 image2 = cv2.imread(path + images[i],0)
+                if image2 is None:
+                    print ("Image " + str(i) + " of plate " + str(plate) + " could not be opened")
+                    continue
                 image2 = image2.astype(np.int16)
                 imageDiff = image2 - image1
 
-                imagecrop = CropImage(imageDiff, image2, threshold_anchor, threshold_range, search_range, crop_size)
+                imagecrop = CropImage(imageDiff)
                 cv2.imwrite(destinationFolder
-                        + "/" + category + "/" + plate + "/" + str(i+1) + ".jpeg", imagecrop)
+                        + "/" + category + "/" + plate + "/" + images[i], imagecrop)
 
 # Crop all New Data Images
-CropAllImages("Anchor10_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 10, 10, 100)
-CropAllImages("Anchor10_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 5, 10, 100)
-CropAllImages("Anchor10_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 10, 7, 10, 100)
-CropAllImages("Anchor7_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 5, 10, 100)
-CropAllImages("Anchor7_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 7, 10, 100)
-CropAllImages("Anchor5_Range5_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 5, 10, 100)
-CropAllImages("Anchor5_Range7_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 7, 10, 100)
-CropAllImages("Anchor5_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 5, 10, 10, 100)
-CropAllImages("Anchor7_Range10_NewData", "/Users/aarong4743/Pictures/SARA_EYE_ANALYSIS", 7, 10, 10, 100)
-
-# Crop all Google Drive Images
-CropAllImages("Anchor10_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 10, 10, 100)
-CropAllImages("Anchor10_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 5, 10, 100)
-CropAllImages("Anchor10_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 10, 7, 10, 100)
-CropAllImages("Anchor7_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 5, 10, 100)
-CropAllImages("Anchor7_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 7, 10, 100)
-CropAllImages("Anchor5_Range5_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 5, 10, 100)
-CropAllImages("Anchor5_Range7_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 7, 10, 100)
-CropAllImages("Anchor5_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 5, 10, 10, 100)
-CropAllImages("Anchor7_Range10_GoogleDrive", "/Users/aarong4743/Pictures/TRAINING_SET_FOR_EYE_DETECTION", 7, 10, 10, 100)
+CropAllImages("/Users/patrickhayes/Desktop/Dest", "/Users/patrickhayes/Desktop/Source", 10, 10, 10, 100)

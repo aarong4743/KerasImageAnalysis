@@ -26,17 +26,18 @@ class Evaluator:
         tn = 0
         fp = 0
         fn = 0
+        ns = 0
         abnormal = [MyUtils.NO_EYES, MyUtils.ONE_EYE]
         normal = [MyUtils.TWO_EYES]
         skip = [MyUtils.NOT_SURE]
         for idx in range(0,len(labels_test)):
-            pred = MyUtils.max_pred(labels_predicted[idx])
-            true = MyUtils.max_pred(labels_test[idx])
+            pred = labels_predicted[idx]
+            true = labels_test[idx]
             
             # If the model isn't sure then don't factor
             # it into accuracy metric
             if pred in skip:
-                continue
+                ns += 1
             elif pred in abnormal and true in abnormal:
                 tp += 1
             elif pred in abnormal and true not in abnormal:
@@ -45,7 +46,10 @@ class Evaluator:
                 fn += 1
             elif pred not in abnormal and true not in abnormal:
                 tn += 1
+        
+        if tp + fn == 0 or tn + fp == 0:
+            bal_err_rate = 1
+        else:
+            bal_err_rate = 1 - 0.5 * (tp * 1.0 /(tp + fn) + tn * 1.0 /(tn+fp))
 
-        bal_err_rate = 1 - 0.5 * (tp * 1.0 /(tp + fn) + tn * 1.0 /(tn+fp))
-
-        return bal_err_rate, tp, fp, tn, fn  
+        return bal_err_rate, tp, fp, tn, fn, ns  

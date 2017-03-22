@@ -6,9 +6,6 @@ from keras.layers import Dense, Convolution2D, MaxPooling2D, Activation
 from keras.layers import BatchNormalization
 from keras.optimizers import SGD
 from keras.layers import Flatten
-from keras.utils import np_utils
-from keras.preprocessing.image import ImageDataGenerator
-from keras import backend as K
 
 ### This class holds the logic for the nueral network. This is 
 ### where the nueral networks are created, trained, fine-tuned,
@@ -22,18 +19,24 @@ class NeuralNetwork:
     # Takes - The type of nueralnetwork wanted
     #
     # Returns - an untrained nueral network
-    def __init__(self, model_type, num_categories):
+    def __init__(self, model_type, **op_paramsnum_categories):
         if model_type.lower() == "basic":
-            self.model = NeuralNetwork.get_basic_model(num_categories)
+            self.model = NeuralNetwork.get_basic_model(
+                                            op_params[num_categories])
 
         elif model_type.lower() == "model_a":
-            self.model =  NeuralNetwork.get_model_a(num_categories)
+            self.model =  NeuralNetwork.get_model_a(
+                                             op_params[num_categories])
 
         elif model_type.lower() == "model_b":
-            self.model = NeuralNetwork.get_model_b(num_categories)
+            self.model = NeuralNetwork.get_model_b(
+                                            op_params[num_categories])
+        elif model_type.lower() == "load":
+            self.model = NeuralNetwork.load(op_params[file_path])
 
         else:
-            self.model = NeuralNetwork.get_basic_model(num_categories)
+            self.model = NeuralNetwork.get_basic_model(
+                                            op_params[num_categories])
             print ("Please specify a valid model")
             return
 
@@ -49,7 +52,7 @@ class NeuralNetwork:
 
         # add 5 filters each 3 by 3 pixels in shape
         model.add(Convolution2D(5, 3, 3, border_mode='same',
-            input_shape=(100, 100, 3), activation='relu'))
+            input_shape=(1, 100, 100), activation='relu'))
 
         # Batch normaliztion speeds up convergence and eliminates the
         # need for drop out
@@ -82,7 +85,7 @@ class NeuralNetwork:
         model = Sequential()
 
         model.add(Convolution2D(25, 3, 3, border_mode='same',
-            input_shape=(100, 100,3), activation='relu'))
+            input_shape=(1, 100, 100), activation='relu'))
         model.add(BatchNormalization(epsilon=1e-05, mode=0, axis=1))
         model.add(MaxPooling2D(pool_size=(2,2)))
 
@@ -93,7 +96,7 @@ class NeuralNetwork:
         model.add(MaxPooling2D(pool_size=(2,2)))
 
 
-        ## Third layer is another convolutional layer
+       ## Third layer is another convolutional layer
         model.add(Convolution2D(25, 3, 3,
             activation='relu', border_mode='same'))
         model.add(BatchNormalization(epsilon=1e-05, mode=0, axis=1))
@@ -127,7 +130,7 @@ class NeuralNetwork:
         model = Sequential()
 
         model.add(Convolution2D(25, 3, 3, border_mode='same',
-            input_shape=(100, 100,3), activation='relu'))
+            input_shape=(1, 100, 100), activation='relu'))
         model.add(BatchNormalization(epsilon=1e-05, mode=0, axis=1))
         model.add(MaxPooling2D(pool_size=(2,2)))
 
@@ -196,6 +199,25 @@ class NeuralNetwork:
     # Returns - a list of labels
     def predict(self,images):
         return self.model.predict(images)
+
+    # Purpose - saves a model into a file, so we can load it later
+    #
+    # Takes - the path of the file where it should be saved
+    #
+    # Returns - nothing, saves the model into the file
+    def save(self, file_path):
+        self.model.save(file_path)
+        return
+
+    # Purpose - load a model from a saved file
+    #
+    # Takes - the path of the file where the model is
+    #         saved
+    # Returns - model that was loaded from saved file
+    @staticmethod
+    def load(file_path):
+        return load_model(file_path)
+
 
 
 

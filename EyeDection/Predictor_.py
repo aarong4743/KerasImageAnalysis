@@ -9,8 +9,11 @@ from Evaluator_ import Evaluator
 
 # This class contains the logic displaying our predictions to the user
 class Predictor:
+  #### CLASS VARIABLES ########################################################
+    CONTRAST = "Contrast"
+  ##### END CLASS VARIABLES ###################################################
 
-  ###METHODS #################################################################
+  ### METHODS #################################################################
     # Purpose - Takes in folder with all the images for a well (uncropped)
     #           It first crops all the images, then it predicts the number
     #           of eyes for each image. It prints these results to file. At 
@@ -19,23 +22,30 @@ class Predictor:
     # Takes - folder_path: location of the well to predict
     #         encoding: used for converting from one-hot to text
     #         model: the neural network to use for prediction
+    #         op_params: Contrast is an optional parameter.
+    #                    if they pass contrast as a parameter increase
+    #                    the contrast of the test images
     #
     # Returns - a string with the results for the well.
     #           Also creates a file and writes the results there
     @staticmethod
-    def predict_well(folder_path, encoding, model):
-        print "Encoding = " + str(encoding)
-
+    def predict_well(folder_path, encoding, model, **op_params):
         image_names = list(MyUtils.images_in_folder(folder_path))
         images = []
         for i in range(1,len(image_names)):
             print "      predicting image " + image_names[i]
-            image1 = cv2.imread(folder_path + '/' + image_names[i-1],1)
+            image1 = cv2.imread(folder_path + '/' + image_names[i-1],0)
             image1 = image1.astype(np.int16)
-            image2 = cv2.imread(folder_path + '/' + image_names[i],1)
+            image2 = cv2.imread(folder_path + '/' + image_names[i],0)
             imageDiff = image2[:,:,1] - image1[:,:,1]
             image_crop = ImageCropper.crop_image(imageDiff, image2)
-            images.append(image_crop.reshape(100,100,3))
+
+            # Increased the contrast of the image if they asked for it
+            if (Predictor.CONTRAST in op_params
+                    and op_params[Predictor.CONTRAST] == True):
+                image_crop = ImageCropper.increase_contrast(image)
+
+            images.append(image_crop.reshape(1,100,100))
         images = np.array(list(images))
         pred = model.predict(images)
 
@@ -56,7 +66,8 @@ class Predictor:
 
             well_results = "Well\t" + pred_cat
             for i in range(0,len(encoding)):
-                well_results = well_results + '\t' + str(sum(pred)[i])
+                well_results = well_results + '\t' + str(sum(pred)[i] * 1.0
+                                / len(pred))
             results.write(well_results)
 
             #Write the results for each individual image
@@ -75,8 +86,7 @@ class Predictor:
     #
     # Returns - nothing, creates a file and writes the results there
     @staticmethod
-    def predict_all_well(testset_path, encoding, model):
-        print "Encoding = " + str(encoding)
+    def predict_all_well(testset_path, encoding, model, **op_params):
         all_well_results = list()
         actual_labels = list()
         predicted_labels = list()
@@ -90,11 +100,25 @@ class Predictor:
             for well in wells:
                 print "   Predicting well " + well 
                 #Get the well results from each well
-                well_results, pred_cat = Predictor.predict_well(testset_path
+                # Increas the contrast of the image if they asked for it
+                if (Predictor.CONTRAST in op_params
+                    and op_params[Predictor.CONTRAST] == True):
+
+                    well_results, pred_cat = Predictor.predict_well(
+                                              testset_path
+                                             + "/"
+                                             + category + "/" + well
+                                             , encoding
+                                             , model
+                                             , Contrast=True)
+                else:
+                     well_results, pred_cat = Predictor.predict_well(
+                                              testset_path
                                              + "/"
                                              + category + "/" + well
                                              , encoding
                                              , model)
+ 
                 #Add the well results to a list with all the well results
                 #append at the end of the line what category the well actually
                 #is
@@ -103,28 +127,29 @@ class Predictor:
                 predicted_labels.append(pred_cat)
 
         # Calculate the Balanced Error Rate
-        BER, TP, FP, TN, FN = Evaluator.calc_balanced_accuracy(actual_labels,
+        BER, TP, FP, TN, FN, NS = Evaluator.calc_balanced_accuracy(
+                                                    actual_labels,
                                                     predicted_labels)
         
         # Write the results for the test set in a new file
         with open(testset_path + "/results.txt",'w') as results:
             results.write("All Well Results\n")
-            results.write("Balanced Error Rate: " + str(BER))
+            results.write("Balanced Error Rate: " + str(BER) + '\n')
             results.write("True Positive Count "
                             + "(Worm predicted abnormal and actually was): "
-                            + str(TP))
+                            + str(TP) + '\n')
             results.write("True Negatve Count "
                             + "(Worm predicted normal and actually was): "
-                            + str(TN))
+                            + str(TN) + '\n')
             results.write("False Positive Count "
                             + "(Worm predicted abnormal but it was normal): "
-                            + str(FP))
+                            + str(FP) + '\n')
             results.write("False Negative Count "
                             + "(Worm predicted normal but it was abnormal): "
-                            + str(FN))
+                            + str(FN) + '\n')
             results.write("Unsure Count "
                      + "(Model lacked the confidence to make a prediction): "
-                     + str(NS))
+                     + str(NS) + '\n')
 
             # Empty line between overall results and individual well results
             results.write('\n')
