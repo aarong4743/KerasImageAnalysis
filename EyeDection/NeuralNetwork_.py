@@ -19,24 +19,24 @@ class NeuralNetwork:
     # Takes - The type of nueralnetwork wanted
     #
     # Returns - an untrained nueral network
-    def __init__(self, model_type, **op_paramsnum_categories):
+    def __init__(self, model_type, **op_params):
         if model_type.lower() == "basic":
             self.model = NeuralNetwork.get_basic_model(
-                                            op_params[num_categories])
+                                            op_params['num_categories'])
 
         elif model_type.lower() == "model_a":
             self.model =  NeuralNetwork.get_model_a(
-                                             op_params[num_categories])
+                                             op_params['num_categories'])
 
         elif model_type.lower() == "model_b":
             self.model = NeuralNetwork.get_model_b(
-                                            op_params[num_categories])
+                                            op_params['num_categories'])
         elif model_type.lower() == "load":
-            self.model = NeuralNetwork.load(op_params[file_path])
+            self.model = NeuralNetwork.load(op_params['file_path'])
 
         else:
             self.model = NeuralNetwork.get_basic_model(
-                                            op_params[num_categories])
+                                            op_params['num_categories'])
             print ("Please specify a valid model")
             return
 
@@ -114,7 +114,7 @@ class NeuralNetwork:
         model.add(Dense(num_categories, activation='softmax'))
         model.summary()
         model.compile(loss='categorical_crossentropy'
-                , optimizer=SGD(lr=0.001, momentum=0.9,decay=0.001)
+                , optimizer=SGD(lr=0.0005, momentum=0.9,decay=0.001)
                 , metrics=['accuracy'])
 
         return model
