@@ -8,7 +8,6 @@ from ImageCropper_ import ImageCropper
 from Predictor_ import Predictor
 from NeuralNetwork_ import NeuralNetwork
 from Evaluator_ import Evaluator
-import os
 
 
 
